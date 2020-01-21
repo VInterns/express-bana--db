@@ -3,7 +3,8 @@ const express= require('express');
 const bodyPraser=require('body-parser');
 var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://localhost:27017/";
-
+const bcrypt = require('bcryptjs');
+const saltRounds = 10;
 
 const app=express();
 app.use(bodyPraser.json())
@@ -11,20 +12,26 @@ app.use(bodyPraser.urlencoded({    extended:false
 }))
 
 
-/*app.post('/hi',(req,res)=>{
-    var search = req.body.somaaa;
-    res.send(search);
-console.log(search);
-})*/
 
 
 
 
-app.post('/bye',(req,res)=> {
-// console.log(req.body,"body");
+
+// app.post('/bye',(req,res)=> {
+    var hash = bcrypt.hashSync("12345", saltRounds);
+    MongoClient.connect(url, function(err, db) {
+        if (err) throw err;
+        var dbo = db.db("mydb");
+        var myobj = { name: "ahmed", address: "Highway 37",password:hash };
+        dbo.collection("customers").insertOne(myobj, function(err, res) {
+          if (err) throw err;
+          console.log("1 document inserted");
+          db.close();
+        });
+    //   });
 
 
-var search = req.body.name;
+/* var search = req.body.name;
 MongoClient.connect(url, function(err, db) {
     if (err) throw err;
     console.log("Connected to Mongo")
@@ -39,10 +46,10 @@ MongoClient.connect(url, function(err, db) {
         db.close();
       });
 
-    });
+    }); */
 })
 
-app.listen(3000, function(){
+app.listen(4000, function(){
        console.log("server ready");
    })
 
